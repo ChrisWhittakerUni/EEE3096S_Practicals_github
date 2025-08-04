@@ -45,7 +45,7 @@ TIM_HandleTypeDef htim16;
 
 /* USER CODE BEGIN PV */
 // TODO: Define input variables
-
+uint16_t pattern1 = 0b10101010;
 
 /* USER CODE END PV */
 
@@ -92,7 +92,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   // TODO: Start timer TIM16
-
+  HAL_TIM_Base_Start_IT(&htim16);
  
 
   /* USER CODE END 2 */
@@ -107,7 +107,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
     // TODO: Check pushbuttons to change timer delay
-
+    GPIOB->ODR = pattern1;
 
     
 

@@ -45,9 +45,14 @@ TIM_HandleTypeDef htim16;
 
 /* USER CODE BEGIN PV */
 // TODO: Define input variables
-uint8_t mode;
-uint16_t pattern1 = 0b11110000;
-uint16_t pattern2 = 0b00001111;
+// general flags:
+uint8_t timing = 1; // 1 for 1 second and 0 for 0.5 seconds
+uint8_t mode; // mode is either 1, 2 or 3
+// for mode 1 and 2:
+uint16_t pattern;
+uint8_t up_or_down = 0;
+uint8_t curr_led = 0;
+// for mode 3:
 uint16_t pattern3 = 0b10101010;
 
 /* USER CODE END PV */
@@ -116,6 +121,15 @@ int main(void)
     	mode = 2;
     }else if(!LL_GPIO_IsInputPinSet(Button3_GPIO_Port, Button3_Pin)){
     	mode = 3;
+    }else if(!LL_GPIO_IsInputPinSet(Button0_GPIO_Port, Button0_Pin)){
+    	// if timing is 1 then change the ARR such that it counts to 0.5 seconds and if timing is 0, change it such that it counts to 1 second
+    	if(timing == 1){
+    		TIM16->ARR = 499; // set ARR to count from 0 to 499 so it counts for 500 ticks of 1 ms each to make 0.5 seconds per overflow
+    	    timing = 0; // acknowledge change with flag
+    	}else if(timing == 0){
+    		TIM16->ARR = 999; // set ARR so it counts to 1 second
+    		timing = 1; // acknowledge change with flag
+    	}
     }
     
 
@@ -330,12 +344,30 @@ void TIM16_IRQHandler(void)
 	HAL_TIM_IRQHandler(&htim16);
 
 	// TODO: Change LED pattern
-    if(mode == 1){
-        GPIOB->ODR = pattern1;
-    }else if(mode == 2){
-    	GPIOB->ODR = pattern2;
+    if((mode == 1) || (mode == 2)){
+        if((up_or_down == 1)&&(curr_led != 7)){ // moving up
+        	curr_led++;
+        	pattern = 1 << curr_led; // value that in binary will be the next digit (led) only
+        }else if((up_or_down == 0)&&(curr_led != 0)){ // moving down
+        	curr_led--;
+        	pattern = 1 << curr_led;
+        }else if(curr_led == 7){ // at the top
+        	up_or_down = 0; // turn around and move down
+        	curr_led = 6; // move to second from top led
+        	pattern = 1 << curr_led;
+        }else if(curr_led == 0){ // at the bottom
+        	up_or_down = 1; // turn around and move up
+        	curr_led = 1; // move to second from bottom led
+        	pattern = 1 << curr_led;
+        }
+        if(mode == 1){
+        	GPIOB->ODR = pattern; // display pattern which is 1 led lighting up by itself
+        }else{
+        	GPIOB->ODR = ~(pattern); // same as mode 1 but reversed (only 1 led is off at a time)
+        }
+
     }else if(mode == 3){
-    	GPIOB->ODR = pattern3;
+    	GPIOB->ODR = pattern;
     }
 
 

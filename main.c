@@ -45,7 +45,10 @@ TIM_HandleTypeDef htim16;
 
 /* USER CODE BEGIN PV */
 // TODO: Define input variables
-uint16_t pattern1 = 0b0;
+uint8_t mode;
+uint16_t pattern1 = 0b11110000;
+uint16_t pattern2 = 0b00001111;
+uint16_t pattern3 = 0b10101010;
 
 /* USER CODE END PV */
 
@@ -107,7 +110,13 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
     // TODO: Check pushbuttons to change timer delay
-
+    if(!LL_GPIO_IsInputPinSet(Button1_GPIO_Port, Button1_Pin)){
+    	mode = 1;
+    }else if(!LL_GPIO_IsInputPinSet(Button2_GPIO_Port, Button2_Pin)){
+    	mode = 2;
+    }else if(!LL_GPIO_IsInputPinSet(Button3_GPIO_Port, Button3_Pin)){
+    	mode = 3;
+    }
     
 
   }
@@ -321,8 +330,14 @@ void TIM16_IRQHandler(void)
 	HAL_TIM_IRQHandler(&htim16);
 
 	// TODO: Change LED pattern
-    pattern1 = ~(pattern1);//
-	GPIOB->ODR = pattern1;
+    if(mode == 1){
+        GPIOB->ODR = pattern1;
+    }else if(mode == 2){
+    	GPIOB->ODR = pattern2;
+    }else if(mode == 3){
+    	GPIOB->ODR = pattern3;
+    }
+
 
 
 }

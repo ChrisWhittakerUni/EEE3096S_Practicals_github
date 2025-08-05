@@ -45,7 +45,7 @@ TIM_HandleTypeDef htim16;
 
 /* USER CODE BEGIN PV */
 // TODO: Define input variables
-uint16_t pattern1 = 0b10101010;
+uint16_t pattern1 = 0b11111110;
 
 /* USER CODE END PV */
 
@@ -92,7 +92,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   // TODO: Start timer TIM16
-  HAL_TIM_Base_Start_IT(&htim16);
+  HAL_TIM_Base_Start_IT(&htim16); // start timer and enable interrupts
  
 
   /* USER CODE END 2 */
@@ -107,7 +107,6 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
     // TODO: Check pushbuttons to change timer delay
-    GPIOB->ODR = pattern1;
 
     
 
@@ -178,7 +177,7 @@ static void MX_TIM16_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM16_Init 2 */
-  NVIC_EnableIRQ(TIM16_IRQn);
+  NVIC_EnableIRQ(TIM16_IRQn); // add TIM16 to NVIC
   /* USER CODE END TIM16_Init 2 */
 
 }
@@ -322,7 +321,8 @@ void TIM16_IRQHandler(void)
 	HAL_TIM_IRQHandler(&htim16);
 
 	// TODO: Change LED pattern
-
+    pattern1 = ~(pattern1);//
+	GPIOB->ODR = pattern1;
 
 
 }

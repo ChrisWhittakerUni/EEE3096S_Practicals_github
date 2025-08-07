@@ -53,7 +53,8 @@ uint16_t pattern;
 uint8_t up_or_down = 0;
 uint8_t curr_led = 0;
 // for mode 3:
-uint16_t pattern3 = 0b10101010;
+uint32_t delay_hold;
+uint32_t delay_switch_off;
 
 /* USER CODE END PV */
 
@@ -367,7 +368,64 @@ void TIM16_IRQHandler(void)
         }
 
     }else if(mode == 3){
+    	// get random value to display and random delay values
+    	delay_hold = rand()%(1500-100+1) + 100; // delay to hold for initially (between 100 and 500 milliseconds)
+    	pattern = rand()%256; // value to display (when converted to binary this will correspond to which leds turn on)
+    	// set output
     	GPIOB->ODR = pattern;
+    	// delay
+        delay(delay_hold);
+
+    	// pseudo-random order to check leds status and turn them off 'randomly'
+    	// delay of a random amount from 0 to 100 milliseconds between switch-off events of leds
+    	if(LL_GPIO_IsInputPinSet(LED3_GPIO_Port, LED3_Pin)){
+    		LL_GPIO_ResetOutputPin(LED3_GPIO_Port, LED3_Pin);
+    		delay_switch_off = rand()%101; // delay value for between switch-offs (between 0 and 100 milliseconds)
+    		delay(delay_switch_off);
+    	}
+
+    	if(LL_GPIO_IsInputPinSet(LED5_GPIO_Port, LED5_Pin)){
+    		LL_GPIO_ResetOutputPin(LED5_GPIO_Port, LED5_Pin);
+    		delay_switch_off = rand()%101;
+    		delay(delay_switch_off);
+    	}
+
+    	if(LL_GPIO_IsInputPinSet(LED7_GPIO_Port, LED7_Pin)){
+    	    LL_GPIO_ResetOutputPin(LED7_GPIO_Port, LED7_Pin);
+    	    delay_switch_off = rand()%101;
+    	    delay(delay_switch_off);
+        }
+
+    	if(LL_GPIO_IsInputPinSet(LED0_GPIO_Port, LED0_Pin)){
+    	    LL_GPIO_ResetOutputPin(LED0_GPIO_Port, LED0_Pin);
+    	    delay_switch_off = rand()%101;
+    	    delay(delay_switch_off);
+        }
+
+    	if(LL_GPIO_IsInputPinSet(LED4_GPIO_Port, LED4_Pin)){
+    	    LL_GPIO_ResetOutputPin(LED4_GPIO_Port, LED4_Pin);
+    	    delay_switch_off = rand()%101;
+    	    delay(delay_switch_off);
+    	}
+
+    	if(LL_GPIO_IsInputPinSet(LED6_GPIO_Port, LED6_Pin)){
+    	    LL_GPIO_ResetOutputPin(LED6_GPIO_Port, LED6_Pin);
+    	    delay_switch_off = rand()%101;
+    	    delay(delay_switch_off);
+    	}
+
+    	if(LL_GPIO_IsInputPinSet(LED2_GPIO_Port, LED2_Pin)){
+    	    LL_GPIO_ResetOutputPin(LED2_GPIO_Port, LED2_Pin);
+    	    delay_switch_off = rand()%101;
+    	    delay(delay_switch_off);
+    	}
+
+    	if(LL_GPIO_IsInputPinSet(LED1_GPIO_Port, LED1_Pin)){
+    	    LL_GPIO_ResetOutputPin(LED1_GPIO_Port, LED1_Pin);
+    	    delay_switch_off = rand()%101;
+    	    delay(delay_switch_off);
+    	}
+
     }
 
 
@@ -391,7 +449,18 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
+/**
+ * Basic delay function for mode 3
+ */
+void delay(uint32_t delay_time){
+	uint32_t i = (delay_time*8000)/8;
+	uint32_t i_in = i/1000;
+	for(volatile uint32_t j=0; j<1000; j++){
+	  for(volatile uint32_t m=0; m<(i_in); m++){
 
+	  }
+	}
+}
 #ifdef  USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number

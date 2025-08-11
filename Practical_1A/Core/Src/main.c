@@ -52,7 +52,7 @@ uint8_t mode; // mode is either 1, 2 or 3
 uint16_t pattern;
 uint8_t up_or_down = 0;
 uint8_t curr_led = 0;
-// for mode 3:
+// for mode 3
 uint32_t delay_hold;
 uint32_t delay_switch_off;
 

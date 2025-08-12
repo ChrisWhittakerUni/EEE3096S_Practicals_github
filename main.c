@@ -110,7 +110,7 @@ int main(void)
   
   //TODO: Call the Mandelbrot Function and store the output in the checksum variable defined initially
   checksum = calculate_mandelbrot_fixed_point_arithmetic(imag_dim, imag_dim, MAX_ITER);
-  checksum = calculate_mandelbrot_fixed_point_arithmetic(imag_dim, imag_dim, MAX_ITER);
+  //checksum = calculate_mandelbrot_double(imag_dim, imag_dim, MAX_ITER);
   //TODO: Record the end time
   end_time = HAL_GetTick();
 
@@ -222,7 +222,7 @@ uint64_t calculate_mandelbrot_fixed_point_arithmetic(int width, int height, int 
 		  y_i = 0;
 		  iteration = 0;
 
-		  while((iteration < MAX_ITER) && (((x_i*x_i)/1000000 + (y_i*y_i)/1000000) <= 4*1000000)){
+		  while((iteration < max_iterations) && (((x_i*x_i)/1000000 + (y_i*y_i)/1000000) <= 4*1000000)){
 			  temp = ((x_i*x_i)/1000000)-((y_i*y_i)/1000000) + (x_0);
 			  y_i = ((2*x_i*y_i)/1000000) + y_0;
 			  x_i = temp;
@@ -254,7 +254,7 @@ uint64_t calculate_mandelbrot_double(int width, int height, int max_iterations){
     	  y_i = 0;
           iteration = 0;
 
-    	  while((iteration < MAX_ITER) && ((x_i*x_i) + (y_i*y_i) <= 4)){
+    	  while((iteration < max_iterations) && ((x_i*x_i) + (y_i*y_i) <= 4)){
     		temp = (x_i*x_i)-(y_i*y_i) + x_0;
     		y_i = (2*x_i*y_i) + y_0;
     		x_i = temp;

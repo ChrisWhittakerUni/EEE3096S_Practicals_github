@@ -33,9 +33,9 @@ ASM_Main:
 	MOVS R2, #0         	@ NOTE: R2 will be dedicated to holding the value on the LEDs
 
 @ TODO: Add code, labels and logic for button checks and LED patterns
-MOV R5, R1 @ store GPIOB_BASE in R5 for safe keeping if R1 is altered
+@MOV R5, R1 @ store GPIOB_BASE in R5 for safe keeping if R1 is altered
 main_loop:
-    MOVS R2, #0x01
+    MOVS R2, #0x11
     BL write_leds
     BL delay_loop
     MOVS R2, #0x02
@@ -43,7 +43,7 @@ main_loop:
     BL delay_loop
 	B main_loop
 write_leds:
-    STR R2, [R5, #0x14]
+    STR R2, [R1, #0x14]
 	BX LR
 
 delay_loop: @ start of delay function

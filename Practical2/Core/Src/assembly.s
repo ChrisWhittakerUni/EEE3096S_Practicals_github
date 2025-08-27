@@ -47,57 +47,25 @@ main_loop:
 
 
 
-/*write_leds:
-
-	MOVS R6, #0x1 @ put 0x1 into R6 to compare it to flag in R0
-    CMP R0, R6 @ if equal then R2 was 0x0 and we need to set the ODR to that without letting the normal bitshift put it to 0x1 first
-    BEQ first_after_reset
-
-	MOVS R6, #0x1
-    CMP R3, R6
-    BNE _inc_1 @ do an extra increment (2 at a time), if R3 has been set to 0x1 meaning PA0 was pressed
-    LSLS R2, R2, R6 @ left shift the bits in R2
-    ORRS R2, R2, R6 @ bitwise or with 1. These above 2 steps take 0b11 -> 0b111, 0b111 -> 0b1111 etc
-_inc_1:
-    LSLS R2, R2, R6 @ left shift the bits in R2
-    ORRS R2, R2, R6 @ bitwise or with 1. These above 2 steps take 0b11 -> 0b111, 0b111 -> 0b1111 etc
-	STR R2, [R1, #0x14] @ put the new value of R2 into the ODR of GPIOB setting the LEDs to next in sequence
-
-	MOVS R6, #0xFF @ put the value corresponding to all lights on into R3 to test against R2 and see if we are at the end of the sequence
-	LDR R0, [R1, #0x14]
-	CMP R0, R6 @ compare to see if the sequence is over (all lights on)
-	BNE no_reset @ if the sequence is still going, skip reset, but if it is done, reset
-	MOVS R2, #0x0 @ set the value in R2 to the value corresponding to the first light being on
-    MOVS R0, #0x1
-
-no_reset:
-    BX LR
-
-first_after_reset:
-	STR R2, [R1, #0x14] @ put the new value of R2 into the ODR of GPIOB setting the LEDs to next in sequence
-	MOVS R0, #0x0
-*/
 write_leds:
-	MOVS R6, #0xFF @ put the value corresponding to all lights on into R3 to test against R2 and see if we are at the end of the sequence
+	MOVS R6, #0xFF @ set R6 in order to check against R2
+	CMP R6, R2 @ check if R2 is 0b11111111
+	BNE normal_iteration @ if in the middle of sequence (R2 not equal to 0b11111111) then branch to the normal iterating logic
+	MOVS R2, #0x0 @ if R2 was 0b11111111 set it to 0b00000000
+	B write @ skip over iterating part so 0b00000000 does not get set to 0b00000001
 
-	CMP R2, R6 @ compare to see if the sequence is over (all lights on)
-	BNE no_reset @ if the sequence is still going, skip reset, but if it is done, reset
-	MOVS R2, #0x0 @ set the value in R2 to the value corresponding to the first light being on
-    STR R2, [R1, #0x14] @ put the new value of R2 into the ODR of GPIOB setting the LEDs all off
-    MOVS R2, 0x1 @ set to 1 for next part of sequence
-	B first_after_reset @ skip the steps of incrementing to the next LED since we want it to stay on all LEDs off for this round
-no_reset:
-    STR R2, [R1, #0x14] @ put the new value of R2 into the ODR of GPIOB setting the next LED in the sequence on.
-    MOVS R6, #0x1
-    CMP R3, R6
+normal_iteration:
+	MOVS R6, #0x1 @ put the value that you need to compare to the '2 or 1' flag into R6
+    CMP R3, R6 @ compare to see if '2 or 1' flag is set or not
     BNE _inc_1 @ do an extra increment (2 at a time), if R3 has been set to 0x1 meaning PA0 was pressed
-    LSLS R2, R2, R6 @ left shift the bits in R2
-    ORRS R2, R2, R6 @ bitwise or with 1. These above 2 steps take 0b11 -> 0b111, 0b111 -> 0b1111 etc
+    ADDS R2, R2, #0x1 @ increment the value in R2
 _inc_1:
-    LSLS R2, R2, R6 @ left shift the bits in R2
-    ORRS R2, R2, R6 @ bitwise or with 1. These above 2 steps take 0b11 -> 0b111, 0b111 -> 0b1111 etc
-first_after_reset:
-	BX LR
+    ADDS R2, R2, #0x1 @ increment the value in R2 a second time if necessary
+write:
+	STR R2, [R1, #0x14] @ put appropriate leds on by writing R2 to GPIOB's ODR
+
+done:
+	BX LR @ branch back to where it was before the branch to write_leds
 
 
 

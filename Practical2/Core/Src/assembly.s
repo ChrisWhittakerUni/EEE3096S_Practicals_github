@@ -47,7 +47,12 @@ main_loop:
 
 
 
+
+
 write_leds:
+	MOVS R6, #0x03 @ set R6 to check against R3 flag for PA2 press
+	CMP R6, R3 @ check if R3 is 0x03 - PA2 was pressed
+	BEQ write @ if PA2 was pressed, do not increment and just jump to the write
 	MOVS R6, #0xFF @ set R6 in order to check against R2
 	CMP R6, R2 @ check if R2 is 0b11111111
 	BNE normal_iteration @ if in the middle of sequence (R2 not equal to 0b11111111) then branch to the normal iterating logic
@@ -85,7 +90,8 @@ check_PA2:
 	MOVS R6, #0x04 @ store bitmask to compare IDR of GPIOA to to see if button 2 was pressed
 	TST R5, R6 @ test IDR against the value that shows button on PA2 was pressed
     BNE check_PA3 @ if not equal to the bitmask then PA2 was also not pressed so skip over and go to check PA3
-    MOVS R2, 0xAA
+    MOVS R2, #0xAA
+    MOVS R3, #0x03
 check_PA3:
 	MOVS R6, #0x08 @ store bitmask to compare IDR of GPIOA to to see if button 3 was pressed
 	TST R5, R6 @ test IDR against the value that shows button on PA3 was pressed

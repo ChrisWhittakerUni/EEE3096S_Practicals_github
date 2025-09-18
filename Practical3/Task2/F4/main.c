@@ -47,24 +47,20 @@
 //TODO: Define variables you think you might need
 // - Performance timing variables (e.g execution time, throughput, pixels per second, clock cycles)
 #define MAX_ITER 100
+int iter_values[] = {100, 250, 500, 750, 1000};
+int iter;
 int imag_dim;
 uint64_t checksum;
 int test_values[] = {128, 160, 192, 224, 256};
-int imag_dim_arr[5];
-uint64_t time_elapsed_arr[5];
-uint64_t clock_cycles_arr[5];
-int throughput_arr[5];
-uint64_t checksum_arr[5];
-uint64_t start_time;
-uint64_t end_time;
-uint64_t time_elapsed;
-uint64_t cpu_freq;
-uint64_t clock_cycles;
-int height;
-int width;
-uint64_t num_pixels;
-uint64_t throughput;
+int iter_arr[25];
+int imag_dim_arr[25];
+int time_elapsed_arr[25];
+int checksum_arr[25];
+float start_time;
+float end_time;
+float time_elapsed;
 int place=0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -113,10 +109,9 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
 
-  // retrieve frequency for calculating clock cycles later
-    cpu_freq = HAL_RCC_GetHCLKFreq();
+  /* USER CODE END 2 */
+  // loop to make testing easier
 
-    // loop to make testing easier
      for(int i=0; i<5; i++){
    	  //TODO: Turn on LED 0 to signify the start of the operation
    	  GPIOB->ODR = 0b00000001;
@@ -124,33 +119,26 @@ int main(void)
    	 //TODO: Call the Mandelbrot Function and store the output in the checksum variable defined initially
    	  imag_dim = test_values[i];
 
+   	  // for loop to iterate over each MAX_ITER value
+   	  for (int x = 0; x < 5; x++) {
    		 //TODO: Record the start time
    		  start_time = HAL_GetTick();
+          // MAX_ITER for this run
+   		  iter = iter_values[x];
 
-   		  // set height and width
-   		  height = imag_dim;
-   		  width = imag_dim;
-   		 //checksum = calculate_mandelbrot_double(imag_dim, imag_dim, MAX_ITER);
-   		  checksum = calculate_mandelbrot_fixed_point_arithmetic(imag_dim, imag_dim, MAX_ITER);
+   		 //checksum = calculate_mandelbrot_double(imag_dim, imag_dim, iter);
+   		  checksum = calculate_mandelbrot_fixed_point_arithmetic(imag_dim, imag_dim, iter);
 
    		 //TODO: Record the end time
    		  end_time = HAL_GetTick();
 
    		  //TODO: Calculate the execution time
    		  time_elapsed = end_time - start_time;
-            //calculate number of clock cycles
-   		  clock_cycles = (time_elapsed*cpu_freq)/1000;
 
-   		  // calculate the throughput
-   		  num_pixels = height*width;
-   		  throughput = num_pixels/(time_elapsed/1000);
-
+   		 iter_arr[place] = iter;
    		 imag_dim_arr[place] = imag_dim;
    		 time_elapsed_arr[place] = time_elapsed;
-   	     clock_cycles_arr[place] = clock_cycles;
-   		 throughput_arr[place] = throughput;
    		 checksum_arr[place] = checksum;
-   		 // increment the index for all output arrays
    		 place+=1;
 
    		  //TODO: Turn on LED 1 to signify the end of the operation
@@ -158,12 +146,13 @@ int main(void)
 
    		  //TODO: Hold the LEDs on for a 1s delay
    		  delay(1000);
-
+   	  }
 
 
    	  //TODO: Turn off the LEDs
    	  GPIOB->ODR = 0b00000000;
      }
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)

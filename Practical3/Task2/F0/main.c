@@ -44,27 +44,23 @@
 /* USER CODE BEGIN PV */
 //TODO: Define variables you think you might need
 // - Performance timing variables (e.g execution time, throughput, pixels per second, clock cycles)
-//TODO: Define variables you think you might need
-// - Performance timing variables (e.g execution time, throughput, pixels per second, clock cycles)
 #define MAX_ITER 100
+int iter_values[] = {100, 250, 500, 750, 1000};
+int iter;
 int imag_dim;
 uint64_t checksum;
 int test_values[] = {128, 160, 192, 224, 256};
-int imag_dim_arr[5];
-uint64_t time_elapsed_arr[5];
-uint64_t clock_cycles_arr[5];
-int throughput_arr[5];
-uint64_t checksum_arr[5];
-uint64_t start_time;
-uint64_t end_time;
-uint64_t time_elapsed;
-uint64_t cpu_freq;
-uint64_t clock_cycles;
-int height;
-int width;
-uint64_t num_pixels;
-uint64_t throughput;
+int iter_arr[25];
+int imag_dim_arr[25];
+int time_elapsed_arr[25];
+int checksum_arr[25];
+float start_time;
+float end_time;
+float time_elapsed;
 int place=0;
+
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -86,6 +82,9 @@ uint64_t calculate_mandelbrot_double(int width, int height, int max_iterations);
   * @brief  The application entry point.
   * @retval int
   */
+
+
+
 int main(void)
 {
 
@@ -113,57 +112,53 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
 
-  // retrieve frequency for calculating clock cycles later
-    cpu_freq = HAL_RCC_GetHCLKFreq();
+  /* USER CODE END 2 */
 
-    // loop to make testing easier
-     for(int i=0; i<5; i++){
-   	  //TODO: Turn on LED 0 to signify the start of the operation
-   	  GPIOB->ODR = 0b00000001;
+  // loop to make testing easier
 
-   	 //TODO: Call the Mandelbrot Function and store the output in the checksum variable defined initially
-   	  imag_dim = test_values[i];
+   for(int i=0; i<5; i++){
+ 	  //TODO: Turn on LED 0 to signify the start of the operation
+ 	  GPIOB->ODR = 0b00000001;
 
-   		 //TODO: Record the start time
-   		  start_time = HAL_GetTick();
+ 	 //TODO: Call the Mandelbrot Function and store the output in the checksum variable defined initially
+ 	  imag_dim = test_values[i];
 
-   		  // set height and width
-   		  height = imag_dim;
-   		  width = imag_dim;
-   		 //checksum = calculate_mandelbrot_double(imag_dim, imag_dim, MAX_ITER);
-   		  checksum = calculate_mandelbrot_fixed_point_arithmetic(imag_dim, imag_dim, MAX_ITER);
+ 	  // for loop to iterate over each MAX_ITER value
+ 	  for (int x = 0; x < 5; x++) {
+ 		 //TODO: Record the start time
+ 		  start_time = HAL_GetTick();
+        // MAX_ITER for this run
+ 		  iter = iter_values[x];
 
-   		 //TODO: Record the end time
-   		  end_time = HAL_GetTick();
+ 		 //checksum = calculate_mandelbrot_double(imag_dim, imag_dim, iter);
+ 		  checksum = calculate_mandelbrot_fixed_point_arithmetic(imag_dim, imag_dim, iter);
 
-   		  //TODO: Calculate the execution time
-   		  time_elapsed = end_time - start_time;
-            //calculate number of clock cycles
-   		  clock_cycles = (time_elapsed*cpu_freq)/1000;
+ 		 //TODO: Record the end time
+ 		  end_time = HAL_GetTick();
 
-   		  // calculate the throughput
-   		  num_pixels = height*width;
-   		  throughput = num_pixels/(time_elapsed/1000);
+ 		  //TODO: Calculate the execution time
+ 		  time_elapsed = end_time - start_time;
 
-   		 imag_dim_arr[place] = imag_dim;
-   		 time_elapsed_arr[place] = time_elapsed;
-   	     clock_cycles_arr[place] = clock_cycles;
-   		 throughput_arr[place] = throughput;
-   		 checksum_arr[place] = checksum;
-   		 // increment the index for all output arrays
-   		 place+=1;
+ 		 iter_arr[place] = iter;
+ 		 imag_dim_arr[place] = imag_dim;
+ 		 time_elapsed_arr[place] = time_elapsed;
+ 		 checksum_arr[place] = checksum;
+ 		 place+=1;
 
-   		  //TODO: Turn on LED 1 to signify the end of the operation
-   		  GPIOB->ODR = 0b00000011;
+ 		  //TODO: Turn on LED 1 to signify the end of the operation
+ 		  GPIOB->ODR = 0b00000011;
 
-   		  //TODO: Hold the LEDs on for a 1s delay
-   		  delay(1000);
+ 		  //TODO: Hold the LEDs on for a 1s delay
+ 		  delay(1000);
+ 	  }
 
 
+ 	  //TODO: Turn off the LEDs
+ 	  GPIOB->ODR = 0b00000000;
+   }
 
-   	  //TODO: Turn off the LEDs
-   	  GPIOB->ODR = 0b00000000;
-     }
+
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -182,7 +177,10 @@ int main(void)
 
 	  //TODO: Keep the LEDs ON for 2s
 
-	  //TODO: Turn OFF LEDs
+	  // TODO: Turn OFF LEDs
+
+
+
   }
   /* USER CODE END 3 */
 }
@@ -196,23 +194,16 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /** Configure the main internal regulator output voltage
-  */
-  __HAL_RCC_PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
-
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 15;
-  RCC_OscInitStruct.PLL.PLLN = 144;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 2;
-  RCC_OscInitStruct.PLL.PLLR = 2;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL12;
+  RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -221,13 +212,12 @@ void SystemClock_Config(void)
   /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+                              |RCC_CLOCKTYPE_PCLK1;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
     Error_Handler();
   }
@@ -246,9 +236,9 @@ static void MX_GPIO_Init(void)
   /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
@@ -336,7 +326,6 @@ uint64_t calculate_mandelbrot_double(int width, int height, int max_iterations){
 
     return mandelbrot_sum;
 }
-
 /* USER CODE END 4 */
 
 /**

@@ -44,6 +44,15 @@
 /* USER CODE BEGIN PV */
 //TODO: Define variables you think you might need
 // - Performance timing variables (e.g execution time, throughput, pixels per second, clock cycles)
+#define MAX_ITER 100
+int imag_dim = 256;
+uint64_t checksum;
+int test_values[] = {128, 160, 192, 224, 256};
+float start_time;
+float end_time;
+float time_elapsed;
+
+
 
 /* USER CODE END PV */
 
@@ -52,7 +61,9 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 /* USER CODE BEGIN PFP */
 //TODO: Define any function prototypes you might need such as the calculate Mandelbrot function among others
-
+// function declarations
+uint64_t calculate_mandelbrot_fixed_point_arithmetic(int width, int height, int max_iterations);
+uint64_t calculate_mandelbrot_double(int width, int height, int max_iterations);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -64,6 +75,9 @@ static void MX_GPIO_Init(void);
   * @brief  The application entry point.
   * @retval int
   */
+
+
+
 int main(void)
 {
 
@@ -92,6 +106,36 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
+
+  // loop to make testing easier
+
+   for(int i=0; i<5; i++){
+ 	  //TODO: Turn on LED 0 to signify the start of the operation
+ 	  GPIOB->ODR = 0b00000001;
+
+ 	  //TODO: Record the start time
+ 	  start_time = HAL_GetTick();
+
+ 	  //TODO: Call the Mandelbrot Function and store the output in the checksum variable defined initially
+ 	  imag_dim = test_values[i];
+ 	  //checksum = calculate_mandelbrot_double(imag_dim, imag_dim, MAX_ITER);
+ 	  checksum = calculate_mandelbrot_fixed_point_arithmetic(imag_dim, imag_dim, MAX_ITER);
+ 	  //TODO: Record the end time
+ 	  end_time = HAL_GetTick();
+
+ 	  //TODO: Calculate the execution time
+ 	  time_elapsed = end_time - start_time;
+
+ 	  //TODO: Turn on LED 1 to signify the end of the operation
+ 	  GPIOB->ODR = 0b00000011;
+
+ 	  //TODO: Hold the LEDs on for a 1s delay
+ 	  delay(1000);
+
+ 	  //TODO: Turn off the LEDs
+ 	  GPIOB->ODR = 0b00000000;
+   }
+
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -194,7 +238,72 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 //TODO: Function signatures you defined previously , implement them here
+//TODO: Mandelbroat using variable type integers and fixed point arithmetic
+uint64_t calculate_mandelbrot_fixed_point_arithmetic(int width, int height, int max_iterations){
+  uint64_t mandelbrot_sum = 0;
+  //TODO: Complete the function implementation
+  int64_t x_0;
+  int64_t y_0;
+  int64_t x_i;
+  int64_t y_i;
+  int64_t iteration;
+  int64_t temp;
+  int64_t h_adj = 2000000.0/height;
+  int64_t w_adj = 3500000.0/width;
+  for(int y=0; y<height; y++){
+	  for(int x=0; x<width; x++){
+		  x_0 = (x*w_adj) - (2500000);
+		  y_0 = (y*h_adj) - (1000000);
+		  x_i = 0;
+		  y_i = 0;
+		  iteration = 0;
 
+		  while((iteration < max_iterations) && (((x_i*x_i+y_i*y_i)/1000000) <= 4000000)){
+			  temp = ((x_i*x_i)/1000000)-((y_i*y_i)/1000000) + (x_0);
+			  y_i = ((2*x_i*y_i)/1000000) + y_0;
+			  x_i = temp;
+			  iteration += 1;
+		  }
+		  mandelbrot_sum += iteration;
+	  }
+  }
+  return mandelbrot_sum;
+
+
+}
+
+//TODO: Mandelbroat using variable type double
+uint64_t calculate_mandelbrot_double(int width, int height, int max_iterations){
+    uint64_t mandelbrot_sum = 0;
+    //TODO: Complete the function implementation
+    double x_0;
+    double y_0;
+    double x_i;
+    double y_i;
+    double iteration;
+    double temp;
+    double w_adj=3.5/width;
+    double h_adj=2.0/width;
+    for(double y=0; y<height; y++){
+       for(double x=0; x<width; x++){
+    	  x_0 = (x*w_adj) - 2.5;
+    	  y_0 = (y*h_adj) - 1.0;
+    	  x_i = 0;
+    	  y_i = 0;
+          iteration = 0;
+
+    	  while((iteration < max_iterations) && ((x_i*x_i) + (y_i*y_i) <= 4)){
+    		temp = (x_i*x_i)-(y_i*y_i) + x_0;
+    		y_i = (2*x_i*y_i) + y_0;
+    		x_i = temp;
+    		iteration += 1;
+    	  }
+    	  mandelbrot_sum += iteration;
+       }
+    }
+
+    return mandelbrot_sum;
+}
 /* USER CODE END 4 */
 
 /**
@@ -210,6 +319,19 @@ void Error_Handler(void)
   {
   }
   /* USER CODE END Error_Handler_Debug */
+}
+
+/**
+ * Basic delay function
+ */
+void delay(uint32_t delay_time){
+	uint32_t i = (delay_time*8000)/8;
+	uint32_t i_in = i/1000;
+	for(volatile uint32_t j=0; j<1000; j++){
+	  for(volatile uint32_t m=0; m<(i_in); m++){
+
+	  }
+	}
 }
 #ifdef USE_FULL_ASSERT
 /**

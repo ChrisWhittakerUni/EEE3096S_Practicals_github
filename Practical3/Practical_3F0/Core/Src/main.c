@@ -45,12 +45,19 @@
 //TODO: Define variables you think you might need
 // - Performance timing variables (e.g execution time, throughput, pixels per second, clock cycles)
 #define MAX_ITER 100
-int imag_dim = 256;
+int iter_values[] = {100, 250, 500, 750, 1000};
+int iter;
+int imag_dim;
 uint64_t checksum;
 int test_values[] = {128, 160, 192, 224, 256};
+int iter_arr[25];
+int imag_dim_arr[25];
+int time_elapsed_arr[25];
+int checksum_arr[25];
 float start_time;
 float end_time;
 float time_elapsed;
+int place=0;
 
 
 
@@ -113,24 +120,38 @@ int main(void)
  	  //TODO: Turn on LED 0 to signify the start of the operation
  	  GPIOB->ODR = 0b00000001;
 
- 	  //TODO: Record the start time
- 	  start_time = HAL_GetTick();
-
- 	  //TODO: Call the Mandelbrot Function and store the output in the checksum variable defined initially
+ 	 //TODO: Call the Mandelbrot Function and store the output in the checksum variable defined initially
  	  imag_dim = test_values[i];
- 	  //checksum = calculate_mandelbrot_double(imag_dim, imag_dim, MAX_ITER);
- 	  checksum = calculate_mandelbrot_fixed_point_arithmetic(imag_dim, imag_dim, MAX_ITER);
- 	  //TODO: Record the end time
- 	  end_time = HAL_GetTick();
 
- 	  //TODO: Calculate the execution time
- 	  time_elapsed = end_time - start_time;
+ 	  // for loop to iterate over each MAX_ITER value
+ 	  for (int x = 0; x < 5; x++) {
+ 		 //TODO: Record the start time
+ 		  start_time = HAL_GetTick();
+        // MAX_ITER for this run
+ 		  iter = iter_values[x];
 
- 	  //TODO: Turn on LED 1 to signify the end of the operation
- 	  GPIOB->ODR = 0b00000011;
+ 		 //checksum = calculate_mandelbrot_double(imag_dim, imag_dim, iter);
+ 		  checksum = calculate_mandelbrot_fixed_point_arithmetic(imag_dim, imag_dim, iter);
 
- 	  //TODO: Hold the LEDs on for a 1s delay
- 	  delay(1000);
+ 		 //TODO: Record the end time
+ 		  end_time = HAL_GetTick();
+
+ 		  //TODO: Calculate the execution time
+ 		  time_elapsed = end_time - start_time;
+
+ 		 iter_arr[place] = iter;
+ 		 imag_dim_arr[place] = imag_dim;
+ 		 time_elapsed_arr[place] = time_elapsed;
+ 		 checksum_arr[place] = checksum;
+ 		 place+=1;
+
+ 		  //TODO: Turn on LED 1 to signify the end of the operation
+ 		  GPIOB->ODR = 0b00000011;
+
+ 		  //TODO: Hold the LEDs on for a 1s delay
+ 		  delay(1000);
+ 	  }
+
 
  	  //TODO: Turn off the LEDs
  	  GPIOB->ODR = 0b00000000;

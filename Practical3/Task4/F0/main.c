@@ -126,7 +126,7 @@ int main(void)
  		  start_time = HAL_GetTick();
          // set height and width
  		  height = height_values[i];
- 		  width = height_values[i];
+ 		  width = width_values[i];
       // Split the image into 8 and then combine results to avoid memory overflow
         checksum = calculate_mandelbrot_fixed_point_arithmetic(width/8, height, MAX_ITER)+calculate_mandelbrot_fixed_point_arithmetic(width/8, height, MAX_ITER)+calculate_mandelbrot_fixed_point_arithmetic(width/8, height, MAX_ITER)+calculate_mandelbrot_fixed_point_arithmetic(width/8, height, MAX_ITER)+calculate_mandelbrot_fixed_point_arithmetic(width/8, height, MAX_ITER)+calculate_mandelbrot_fixed_point_arithmetic(width/8, height, MAX_ITER)+calculate_mandelbrot_fixed_point_arithmetic(width/8, height, MAX_ITER)+calculate_mandelbrot_fixed_point_arithmetic(width/8, height, MAX_ITER);
       //}

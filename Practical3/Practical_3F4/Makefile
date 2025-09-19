@@ -97,10 +97,16 @@ CPU = -mcpu=cortex-m4
 
 #TODO: FPU Enbale/Disable
 # fpu
-FPU = -mfpu=fpv4-sp-d16
+# enabled
+# FPU = -mfpu=fpv4-sp-d16
+# disabled
+FPU =
 
 # float-abi
-FLOAT-ABI = -mfloat-abi=hard
+# enable FPU
+# FLOAT-ABI = -mfloat-abi=hard
+# disable FPU
+FLOAT-ABI = -mfloat-abi=soft
 
 # mcu
 MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 # Constants
 samples = 10000
-max_val = 4095  # 12-bit resolution
+max_val = 400  # 12-bit resolution
 mid_val = max_val // 2
 
 # Generate LUTs

@@ -11,8 +11,8 @@ def generate_lut(wav_file, lut_size=10000):
 
     # Normalize from [-1, 1] to [0, 4095]
     data = data / np.max(np.abs(data))  # Normalize to [-1, 1]
-    data = (data + 1) / 2 * 4095         # Now in [0, 4095]
-    data = np.clip(data, 0, 4095)
+    data = (data + 1) / 2 * 400         # Now in [0, 4095]
+    data = np.clip(data, 0, 400)
 
     # Downsample to LUT size
     indices = np.linspace(0, len(data) - 1, lut_size).astype(int)
